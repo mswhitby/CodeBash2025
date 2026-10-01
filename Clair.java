@@ -1,90 +1,58 @@
 import java.io.*;
 import java.util.*;
 
+public class Clair {
 
-public class Claire {
     public static void main(String[] args) throws Exception {
         /* Enter your code here. Read input from STDIN. Print output to STDOUT. Your class should be named Solution. */
 
         Scanner scanner = new Scanner(System.in);
+        // Scanner scanner = new Scanner(new File("clair.dat"));
         int cases = scanner.nextInt();
 
-        Set<Long> primes = getPrimes();
+        Set<Long> primeNumbers = new HashSet<>();
+        Map<Long, Set<Long>> factorsMap = new HashMap<>();
 
         while (cases-- > 0) {
             long n = scanner.nextLong();
-            Map<Long, Long> factorization = getFactorization(n, primes);
-            Set<Long> factors = getFactors(factorization);
-          
-            System.out.println(
-                factors.stream()
-                        .map(String::valueOf)
-                        .collect(java.util.stream.Collectors.joining(", "))
-            );
-        }
-        scanner.close();
-    }
+            Set<Long> factors = new TreeSet<>();
 
-    static Set<Long> getPrimes() {
+            for (long i = 1; (i * i) <= n ; i++) {
 
-        int limit = 1_000_000;
-        boolean[] primeChecker = new boolean[limit+1];
+                if (n % i == 0) {
+                    if (factorsMap.containsKey(i)) {
+                        factors.addAll(factorsMap.get(i));
+                    }
 
-        for (int i=2; i <= 1_000_000; i++) {
-            if (primeChecker[i]) continue;
+                    if (!isPrime(i, primeNumbers)) {
+                        factors.add(i);
+                    }
 
-            for (long j = (long) i * i; j <= limit; j += i) {
-                primeChecker[(int) j] = true;
-            }
-        }
-
-        Set<Long> primes = new TreeSet<>();
-
-        for (int i = 2; i <= limit; i++) {
-            if (!primeChecker[i]) primes.add((long) i);
-        }
-
-        return primes;
-    }
-
-    static Map<Long, Long> getFactorization(long n, Set<Long> primes) {
-        Map<Long, Long> factors = new TreeMap<>();
-        long remaining = n;
-
-        for (long p: primes) {
-            if (p > n) break;
-            int count = 0;
-
-            while (remaining % p == 0) {
-                count += 1;
-                remaining /= p;
-            }
-
-            if (count > 0) factors.put(p, (long) count);
-        }
-
-        if (remaining > 1) factors.put(remaining, 1L);
-        return factors;
-    }
-
-    private static Set<Long> getFactors(Map<Long, Long> factorization) {
-        Set<Long> factors = new TreeSet<>();
-        factors.add(1L);
-
-        for (Map.Entry<Long, Long> entry : factorization.entrySet()) {
-            long prime = entry.getKey();
-            long exponent = entry.getValue();
-
-            Set<Long> currentFactors = new TreeSet<>(factors);
-            long power = 1;
-            for (int e = 1; e <= exponent; e++) {
-                power = (long) Math.pow(prime, e);
-                for (long current : currentFactors) {
-                    factors.add(current * power);
+                    if (!isPrime(n / i, primeNumbers)) {
+                        factors.add(n / i);
+                    }
                 }
             }
+
+            factorsMap.put(n, factors);
+            System.out.println(
+                    factors.stream()
+                            .map(String::valueOf)
+                            .collect(java.util.stream.Collectors.joining(", "))
+            );
         }
-        factors.removeAll(factorization.keySet());
-        return factors;
+    }
+
+    static boolean isPrime(long n, Set<Long> primeNumbers) {
+        if (n < 2) return false;
+
+        if (primeNumbers.contains(n)) return true;
+
+        for (long i = 2; i * i <= n; i++) {
+            if (n % i == 0) return false;
+        }
+
+        primeNumbers.add(n);
+        return true;
     }
 }
