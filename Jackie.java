@@ -8,6 +8,11 @@ class Node {
     Node(int value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }
 
 class BinarySearchTree {
@@ -70,6 +75,7 @@ class BinarySearchTree {
 
     boolean isBalancedRec(Node node) {
         if (node == null) return true;
+        System.out.println(getHeight(node.left) + " " +  getHeight(node.right));
         if (Math.abs(getHeight(node.left) - getHeight(node.right)) > 1) return false;
         return isBalancedRec(node.left) && isBalancedRec(node.right);
     }
@@ -79,9 +85,8 @@ class BinarySearchTree {
     }
 
     boolean isCompleteRec(Node node) {
-        if (node == null) return true;
-        if ((node.left == null ) && (node.right == null)) return leftHeight >= rightHeight;
-        if (node.left == null) return false;
+        if (node == null || ((node.left == null) && (node.right == null))) return true;
+        if ((node.left == null) & (node.right != null)) return false;
         if (node.right == null) return isCompleteRec(node.left);
         return isCompleteRec(node.left) && isCompleteRec(node.right);
     }
@@ -91,7 +96,12 @@ class BinarySearchTree {
     }
 
     boolean isFullRec(Node node) {
-        return (node.left == null) == (node.right == null);
+        if (node == null) return true;
+        if ((node.left == null) != (node.right == null)) return false;
+
+
+        System.out.println("left: " + node.left + ", right: " + node.right);
+        return isFullRec(node.left) && isFullRec(node.right);
     }
 
     boolean isPerfect() {
@@ -135,10 +145,11 @@ public class Jackie {
                 isPerfect = isFull = isComplete = isBalanced = true;
             } else if (bst.isComplete()) {
                 isComplete = isBalanced = true;
-            } else {
-                if (bst.isFull())isFull = true;
-                if (bst.isBalanced()) isBalanced = true;
-                if (bst.isLeftSkewed()) isLeftSkewed = true;
+            } else if (bst.isBalanced()) isBalanced = true;
+
+            if (!isFull) {
+                if (bst.isFull()) isFull = true;
+                else if (bst.isLeftSkewed()) isLeftSkewed = true;
                 else if (bst.isRightSkewed()) isRightSkewed = true;
             }
 
